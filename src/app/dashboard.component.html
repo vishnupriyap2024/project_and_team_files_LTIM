@@ -1,0 +1,37 @@
+<div class="dashboard">
+  <h1>Welcome, {{ currentUser?.name }} ({{ currentUser?.role | titlecase }})</h1>
+
+  <ng-container *ngIf="currentUser?.role === 'seller'">
+    <section>
+      <h2>Your Products</h2>
+      <ul>
+        <li *ngFor="let product of sellerProducts">
+          {{ product.name }} - {{ product.description }} | ${{ product.price }} | Qty: {{ product.quantity }}
+        </li>
+      </ul>
+      <form [formGroup]="productForm" (ngSubmit)="onAddProduct()">
+        <input formControlName="name" placeholder="Product Name" required />
+        <input formControlName="description" placeholder="Description" required />
+        <input formControlName="price" type="number" placeholder="Price" required />
+        <input formControlName="quantity" type="number" placeholder="Quantity" required />
+        <button type="submit" [disabled]="productForm.invalid">Add Product</button>
+      </form>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="currentUser?.role === 'buyer'">
+    <section>
+      <h2>Available Products</h2>
+      <ul>
+        <li *ngFor="let product of products$ | async">
+          {{ product.name }} - {{ product.description }} | ${{ product.price }} | Qty: {{ product.quantity }}
+          <form [formGroup]="buyForms[product.id]" (ngSubmit)="onBuyProduct(product.id)">
+            <input formControlName="quantity" type="number" min="1" [max]="product.quantity" placeholder="Qty" required />
+            <button type="submit" [disabled]="buyForms[product.id].invalid">Buy</button>
+          </form>
+        </li>
+      </ul>
+      <div *ngIf="buyMessage" class="buy-message">{{ buyMessage }}</div>
+    </section>
+  </ng-container>
+</div>
